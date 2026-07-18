@@ -5,31 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Harsh Raj - AI product and systems builder creating agents, workflows, automation tools, and AI-driven backends."
+      content="Harsh - AI product and systems builder creating agents, workflows, automation tools, and AI-driven backends."
     />
-    <title>Harsh Raj | Portfolio</title>
+    <title>Harsh | Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@1,600;1,700&family=Imperial+Script&family=Inter:wght@400;500;600;700;800&family=Pinyon+Script&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600;1,700&family=Imperial+Script&family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
     <script>
       (function() {
-        const theme = localStorage.getItem('theme') || 'light';
+        const theme = localStorage.getItem('theme') || 'dark';
         document.documentElement.setAttribute('data-theme', theme);
       })();
     </script>
   </head>
-  <body data-theme="light">
-    <!-- Antigravity background canvas -->
-    <canvas id="antigravity-canvas"></canvas>
-
-    <!-- Custom Cursor Follower -->
-    <div class="custom-cursor-dot" id="cursorDot"></div>
-    <div class="custom-cursor-ring" id="cursorRing"></div>
-
+  <body data-theme="dark">
     <!-- Theme Transition Ripple Overlay -->
     <div class="theme-transition-ripple" id="themeRipple"></div>
 
@@ -51,19 +44,30 @@
       </svg>
     </button>
 
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a class="nav-brand" href="#top" aria-label="Harsh home">H<span>.</span></a>
+      <div class="nav-links">
+        <a href="#projects">Work</a>
+        <a href="#experience">About</a>
+        <a href="#expertise">Stack</a>
+      </div>
+      <a class="nav-cta" href="#ask">Let's build <span aria-hidden="true">↗</span></a>
+    </nav>
+
     <main class="site-shell" id="top">
       <header class="hero">
-        <p class="meta-line"><span class="meta-icon" aria-hidden="true">⌁</span><span id="clock">Delhi</span></p>
-        <div class="name-mark" aria-label="Harsh Raj">
+        <p class="meta-line"><span class="meta-icon" aria-hidden="true">✦</span><span id="clock">Delhi</span></p>
+        <div class="name-mark" aria-label="Harsh">
           <span class="first-name"><span class="calligraphy-h">H</span><span>arsh</span></span>
-          <strong class="last-name"><span>Raj</span></strong>
         </div>
         <p class="intro-copy">
-          AI product and systems builder. I design agents, workflows, tools, and AI-driven
-          backends that turn messy problems into simple working products.
+          I build AI systems that turn messy work into clear, useful products.
         </p>
-        <a class="primary-link" href="#experience">Get to know me</a>
-        <a class="scroll-cue" href="#experience">Or scroll down <span>↓</span></a>
+        <p class="hero-context">Agentic workflows <span>·</span> AI backends <span>·</span> Product engineering</p>
+        <div class="hero-actions">
+          <a class="primary-link" href="#projects">View selected work <span aria-hidden="true">↓</span></a>
+          <a class="secondary-link" href="#ask">Let's talk <span aria-hidden="true">↗</span></a>
+        </div>
       </header>
 
       <section class="top-links" aria-label="Important links">
@@ -207,7 +211,7 @@
             <div class="profile-strip">
               <span class="profile-icon" aria-hidden="true">HR</span>
               <p>
-                Harsh Raj<br />
+                Harsh<br />
                 <span>AI product systems · Agentic workflows · Product engineering</span>
               </p>
             </div>
@@ -225,7 +229,7 @@
       </section>
 
       <footer class="footer">
-        <span>© 2026 Harsh Raj</span>
+        <span>© 2026 Harsh</span>
         <a href="mailto:harshrajj.work@gmail.com">harshrajj.work@gmail.com</a>
         <a href="#top">Back to top ↑</a>
       </footer>
