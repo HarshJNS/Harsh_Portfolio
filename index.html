@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600;1,700&family=Imperial+Script&family=Inter:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,600;1,700&family=Imperial+Script&family=Outfit:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
@@ -24,6 +24,7 @@
   </head>
   <body data-theme="dark">
     <canvas class="interactive-dots" id="interactiveDots" aria-hidden="true"></canvas>
+    <div class="gamer-cursor" id="gamerCursor" aria-hidden="true"><span class="cursor-core"></span><span class="cursor-corners"></span></div>
 
     <!-- Theme Transition Ripple Overlay -->
     <div class="theme-transition-ripple" id="themeRipple"></div>
@@ -46,6 +47,27 @@
       </svg>
     </button>
 
+    <button id="sideDockToggle" class="command-dock-toggle" type="button" aria-label="Open navigation" aria-controls="sideDock" aria-expanded="false" title="Open navigation (⌘K)">⌘</button>
+
+    <div class="command-overlay" id="sideDock" aria-hidden="true">
+      <section class="command-palette" role="dialog" aria-modal="true" aria-label="Command menu">
+        <div class="command-search">
+          <span aria-hidden="true">⌕</span>
+          <input id="commandSearch" type="search" placeholder="Type a command or search..." autocomplete="off" />
+          <kbd>Esc</kbd>
+        </div>
+        <p class="command-label">Navigate</p>
+        <nav class="command-list" aria-label="Quick navigation">
+          <a class="command-item" href="#top" data-command="home start top"><span>⌂</span><b>Home<small>Back to the beginning</small></b><em>↵</em></a>
+          <a class="command-item" href="#experience" data-command="about experience"><span>◉</span><b>About<small>My background and focus</small></b></a>
+          <a class="command-item" href="#projects" data-command="work projects meetmind tubeai resume"><span>▣</span><b>Projects<small>View selected work</small></b></a>
+          <a class="command-item" href="#expertise" data-command="skills stack mern docker kubernetes"><span>✦</span><b>Skill set<small>Tools and technologies</small></b></a>
+          <a class="command-item" href="#ask" data-command="contact talk email hire"><span>↗</span><b>Let's talk<small>Start a conversation</small></b></a>
+        </nav>
+        <div class="command-footer"><span>↑ ↓ Navigate</span><span>↵ Open</span><span>⌘K Toggle</span></div>
+      </section>
+    </div>
+
     <nav class="site-nav" aria-label="Primary navigation">
       <a class="nav-brand" href="#top" aria-label="Harsh home">H<span>.</span></a>
       <div class="nav-links">
@@ -63,12 +85,17 @@
           <span class="first-name"><span class="calligraphy-h">H</span><span>arsh</span></span>
         </div>
         <p class="intro-copy">
-          I build AI systems that turn messy work into clear, useful products.
+          I build AI systems that turn messy work into<br />
+          <span class="display-script">clear, useful products.</span>
         </p>
         <p class="hero-context">Agentic workflows <span>·</span> AI backends <span>·</span> Full-stack development</p>
         <div class="hero-actions">
           <a class="primary-link" href="#projects">View selected work <span aria-hidden="true">↓</span></a>
           <a class="secondary-link" href="#ask">Let's talk <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="hero-corners" aria-label="Location and focus">
+          <p><span aria-hidden="true">●</span> Based in Delhi,<br />India</p>
+          <p>AI systems<br /><em>&amp; full-stack</em></p>
         </div>
       </header>
 
@@ -98,68 +125,34 @@
             <p>Building responsive web applications with React, Node.js, Python, Flask, and FastAPI.</p>
             <span>2025 - Now</span>
           </article>
-          <article class="row">
-            <h2>B.Tech CSE</h2>
-            <p>IILM University · Expected graduation 2028.</p>
-            <span>2024 - Now</span>
-          </article>
         </div>
       </section>
 
-      <section class="section" id="expertise">
-        <p class="label">Expertise</p>
-        <p class="statement">
-          I blend <mark>agentic AI</mark>, backend systems, full-stack development, and simple UI to
-          build tools that feel clear, useful, and ready to show.
+      <section class="section skill-showcase" id="expertise">
+        <p class="label">Skill set</p>
+        <p class="statement skill-statement">
+          The Magic <span class="display-script">Behind</span>
         </p>
-
-        <div class="skill-list">
-          <article>
-            <span>01</span>
-            <h2>Agentic AI</h2>
-            <p>LLM prompts, structured extraction, RAG workflows, embeddings, and AI workflow design.</p>
-          </article>
-          <article>
-            <span>02</span>
-            <h2>Backend Systems</h2>
-            <p>Python, Flask, FastAPI, REST APIs, validation, file pipelines, SQLite, and ChromaDB.</p>
-          </article>
-          <article>
-            <span>03</span>
-            <h2>MERN Stack</h2>
-            <p>MongoDB, Express, React, Node.js, REST APIs, authentication, and responsive web applications.</p>
-          </article>
-          <article>
-            <span>04</span>
-            <h2>Cloud & DevOps</h2>
-            <p>Docker, Kubernetes, Linux, CI/CD, GitHub Actions, deployments, and environment management.</p>
-          </article>
-          <article>
-            <span>05</span>
-            <h2>Frontend Stack</h2>
-            <p>React, Next.js, TypeScript, JavaScript, HTML, CSS, Tailwind CSS, and accessible interfaces.</p>
-          </article>
-          <article>
-            <span>06</span>
-            <h2>Data & Search</h2>
-            <p>MongoDB, PostgreSQL, SQLite, Redis, ChromaDB, vector search, embeddings, and RAG pipelines.</p>
-          </article>
-          <article>
-            <span>07</span>
-            <h2>AI Product Systems</h2>
-            <p>Meeting intelligence, resume intelligence, video summaries, document processing, and AI dashboards.</p>
-          </article>
-          <article>
-            <span>08</span>
-            <h2>Languages & Tools</h2>
-            <p>Python, JavaScript, TypeScript, SQL, Git, GitHub, Postman, VS Code, and API testing.</p>
-          </article>
-        </div>
+        <svg class="skill-orb" viewBox="0 0 420 250" aria-hidden="true">
+          <defs>
+            <radialGradient id="orbGlow" cx="50%" cy="42%" r="58%"><stop offset="0" stop-color="var(--accent-color)" stop-opacity=".38"/><stop offset=".42" stop-color="var(--accent-color)" stop-opacity=".08"/><stop offset="1" stop-color="var(--accent-color)" stop-opacity="0"/></radialGradient>
+            <linearGradient id="orbStroke" x1="0" x2="1"><stop stop-color="var(--ink)" stop-opacity=".14"/><stop offset=".5" stop-color="var(--ink)" stop-opacity=".78"/><stop offset="1" stop-color="var(--accent-color)" stop-opacity=".38"/></linearGradient>
+          </defs>
+          <ellipse cx="210" cy="125" rx="122" ry="88" fill="url(#orbGlow)"/>
+          <path d="M92 129c37-93 163-116 235-39 62 66-5 144-95 112-76-27-74-119 15-136 73-14 119 61 71 121-48 59-154 25-141-49 12-72 127-80 162-9" fill="none" stroke="url(#orbStroke)" stroke-linecap="round" stroke-width="11"/>
+          <path d="M113 173c-35-65 31-139 103-118 78 23 71 128-10 142-69 13-108-64-62-112 50-52 143-7 125 59-15 58-104 60-127 8" fill="none" stroke="var(--ink)" stroke-linecap="round" stroke-opacity=".34" stroke-width="7"/>
+          <circle cx="210" cy="125" r="14" fill="var(--accent-color)" fill-opacity=".72"/>
+        </svg>
+        <p class="section-support">A focused mix of AI, full-stack engineering, cloud tooling, and product-minded execution.</p>
+        <ul class="skill-pills" aria-label="Technology stack">
+          <li>Python</li><li>JavaScript</li><li>TypeScript</li><li>React</li><li>Next.js</li><li>Node.js</li><li>Express</li><li>FastAPI</li><li>Flask</li><li>MongoDB</li><li>PostgreSQL</li><li>Redis</li><li>ChromaDB</li><li>Docker</li><li>Kubernetes</li><li>GitHub Actions</li><li>Gemini</li><li>RAG</li><li>Tailwind CSS</li><li>Git</li><li>Postman</li>
+        </ul>
       </section>
 
       <section class="section" id="projects">
         <p class="label">Projects</p>
-        <p class="statement">Three major builds I can explain end to end.</p>
+        <p class="statement projects-statement">Selected <span class="display-script">work.</span></p>
+        <p class="section-support">Three AI systems designed to turn complex work into clear, useful outcomes.</p>
 
         <div class="project-list">
           <article class="project">
@@ -252,35 +245,40 @@
         </div>
       </section>
 
-      <section class="section ask-section" id="ask">
-        <p class="label">Ask</p>
-        <div class="ask-layout">
-          <div>
-            <p class="statement">Ask about my projects, skills, education, or contact details.</p>
-            <div class="profile-strip">
-              <span class="profile-icon" aria-hidden="true">HR</span>
-              <p>
-                Harsh<br />
-                <span>AI systems · Agentic workflows · Full-stack development</span>
-              </p>
-            </div>
-          </div>
-          <div class="ask-card">
-            <div id="answerBox" class="answer-box">
-              Ask something like “What does MeetMind do?” or “What skills does Harsh have?”
-            </div>
-            <form id="askForm" class="ask-form">
-              <input id="questionInput" type="text" maxlength="180" placeholder="Ask about Harsh..." />
-              <button type="submit">Ask</button>
-            </form>
-          </div>
+      <section class="contact-cta" id="ask">
+        <p class="label">Available for thoughtful work</p>
+        <div class="contact-orb" aria-hidden="true"></div>
+        <h2>Let’s create<br /><span>something real.</span></h2>
+        <p>Have an idea, a messy workflow, or a product to ship? Let’s turn it into something useful.</p>
+        <div class="contact-cta-actions">
+          <a class="primary-link" href="mailto:harshrajj.work@gmail.com">Start a conversation <span aria-hidden="true">↗</span></a>
+          <a class="secondary-link" href="https://www.linkedin.com/in/harshrajjns" target="_blank" rel="noopener noreferrer">Connect on LinkedIn <span aria-hidden="true">↗</span></a>
         </div>
       </section>
 
-      <footer class="footer">
-        <span>© 2026 Harsh</span>
-        <a href="mailto:harshrajj.work@gmail.com">harshrajj.work@gmail.com</a>
-        <a href="#top">Back to top ↑</a>
+      <footer class="footer premium-footer">
+        <div class="footer-brand">
+          <a class="footer-mark" href="#top">Harsh<span>.</span></a>
+          <p>Building AI systems and full-stack products with clarity, utility, and care.</p>
+          <a href="mailto:harshrajj.work@gmail.com">harshrajj.work@gmail.com ↗</a>
+        </div>
+        <div class="footer-column">
+          <p>Navigate</p>
+          <a href="#top">Home</a><a href="#experience">About</a><a href="#projects">Projects</a><a href="#expertise">Skill set</a>
+        </div>
+        <div class="footer-column">
+          <p>Featured work</p>
+          <a href="https://github.com/HarshJNS/MeetMind" target="_blank" rel="noopener noreferrer">MeetMind ↗</a>
+          <a href="https://github.com/HarshJNS/yt_summarizer" target="_blank" rel="noopener noreferrer">TubeAI ↗</a>
+          <a href="https://github.com/HarshJNS/Intelli_resume_analyzer_2" target="_blank" rel="noopener noreferrer">Resume Analyzer ↗</a>
+        </div>
+        <div class="footer-column">
+          <p>Elsewhere</p>
+          <a href="https://github.com/HarshJNS" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+          <a href="https://www.linkedin.com/in/harshrajjns" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+          <a href="#top">Back to top ↑</a>
+        </div>
+        <div class="footer-bottom"><span>© 2026 Harsh</span><span>Delhi, India</span></div>
       </footer>
     </main>
 

@@ -24,11 +24,6 @@ const knowledge = [
       "Harsh works across Python, JavaScript, TypeScript, React, Next.js, Node.js, Express, Flask, FastAPI, MongoDB, PostgreSQL, SQLite, Redis, ChromaDB, Docker, Kubernetes, GitHub Actions, Gemini, embeddings, Whisper, and API testing. His strength is turning AI workflows into reliable full-stack systems.",
   },
   {
-    keys: ["college", "education", "university", "graduation"],
-    answer:
-      "Harsh is a Computer Science Engineering student at IILM University, with an expected graduation year of 2028.",
-  },
-  {
     keys: ["contact", "email", "phone", "linkedin", "hire", "work"],
     answer:
       `You can reach Harsh at ${email}, ${phone}, or LinkedIn: ${linkedIn}. He is best aligned with AI systems, agentic workflows, automation tools, full-stack development, and zero-to-one builds.`,
@@ -144,6 +139,137 @@ if (dotsCanvas && !window.matchMedia("(prefers-reduced-motion: reduce)").matches
   drawDotField();
 }
 
+// A lightweight, dependency-free 3D tilt for cards that keeps the portfolio's visual style intact.
+const canTiltCards = window.matchMedia("(hover: hover) and (pointer: fine)").matches
+  && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+if (canTiltCards) {
+  document.querySelectorAll(".project, .skill-list article").forEach((card) => {
+    card.classList.add("tilt-card");
+
+    card.addEventListener("pointermove", (event) => {
+      const bounds = card.getBoundingClientRect();
+      const horizontal = (event.clientX - bounds.left) / bounds.width;
+      const vertical = (event.clientY - bounds.top) / bounds.height;
+      const tiltX = (0.5 - vertical) * 7;
+      const tiltY = (horizontal - 0.5) * 7;
+
+      card.style.setProperty("--tilt-x", `${tiltX}deg`);
+      card.style.setProperty("--tilt-y", `${tiltY}deg`);
+      card.style.setProperty("--glow-x", `${horizontal * 100}%`);
+      card.style.setProperty("--glow-y", `${vertical * 100}%`);
+      card.classList.add("is-tilting");
+    });
+
+    card.addEventListener("pointerleave", () => {
+      card.style.setProperty("--tilt-x", "0deg");
+      card.style.setProperty("--tilt-y", "0deg");
+      card.classList.remove("is-tilting");
+    });
+  });
+}
+
+const canUseCustomCursor = window.matchMedia("(hover: hover) and (pointer: fine)").matches
+  && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const gamerCursor = document.getElementById("gamerCursor");
+if (canUseCustomCursor && gamerCursor) {
+  const cursorTarget = { x: -100, y: -100 };
+  const cursorPosition = { x: -100, y: -100 };
+  document.body.classList.add("has-custom-cursor");
+
+  const renderCursor = () => {
+    cursorPosition.x += (cursorTarget.x - cursorPosition.x) * 0.22;
+    cursorPosition.y += (cursorTarget.y - cursorPosition.y) * 0.22;
+    gamerCursor.style.left = `${cursorPosition.x}px`;
+    gamerCursor.style.top = `${cursorPosition.y}px`;
+    window.requestAnimationFrame(renderCursor);
+  };
+
+  window.addEventListener("pointermove", (event) => {
+    cursorTarget.x = event.clientX;
+    cursorTarget.y = event.clientY;
+    gamerCursor.classList.add("is-visible");
+  }, { passive: true });
+  window.addEventListener("pointerout", (event) => {
+    if (!event.relatedTarget) gamerCursor.classList.remove("is-visible");
+  });
+  document.addEventListener("pointerover", (event) => {
+    gamerCursor.classList.toggle("is-active", Boolean(event.target.closest("a, button, input, textarea, select, [role='button']")));
+  });
+  renderCursor();
+}
+
+const sideDock = document.getElementById("sideDock");
+const sideDockToggle = document.getElementById("sideDockToggle");
+if (sideDock && sideDockToggle) {
+  const commandSearch = document.getElementById("commandSearch");
+  const commandItems = [...sideDock.querySelectorAll(".command-item")];
+  let activeCommandIndex = 0;
+
+  const setSideDockOpen = (isOpen) => {
+    sideDock.classList.toggle("is-open", isOpen);
+    sideDock.setAttribute("aria-hidden", String(!isOpen));
+    sideDockToggle.setAttribute("aria-expanded", String(isOpen));
+    sideDockToggle.setAttribute("aria-label", isOpen ? "Close navigation" : "Open navigation");
+    if (isOpen) {
+      setActiveCommand(0);
+      window.setTimeout(() => commandSearch?.focus(), 0);
+    }
+  };
+
+  const setActiveCommand = (index) => {
+    const visibleItems = commandItems.filter((item) => !item.hidden);
+    if (!visibleItems.length) return;
+    activeCommandIndex = (index + visibleItems.length) % visibleItems.length;
+    commandItems.forEach((item) => item.classList.remove("is-active"));
+    visibleItems[activeCommandIndex].classList.add("is-active");
+    visibleItems[activeCommandIndex].scrollIntoView({ block: "nearest" });
+  };
+
+  commandSearch?.addEventListener("input", () => {
+    const query = commandSearch.value.trim().toLowerCase();
+    commandItems.forEach((item) => {
+      item.hidden = !item.dataset.command.includes(query) && !item.textContent.toLowerCase().includes(query);
+    });
+    setActiveCommand(0);
+  });
+
+  commandSearch?.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActiveCommand(activeCommandIndex + 1);
+    }
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActiveCommand(activeCommandIndex - 1);
+    }
+    if (event.key === "Enter") {
+      const visibleItems = commandItems.filter((item) => !item.hidden);
+      visibleItems[activeCommandIndex]?.click();
+    }
+  });
+
+  sideDockToggle.addEventListener("click", () => {
+    setSideDockOpen(!sideDock.classList.contains("is-open"));
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      setSideDockOpen(!sideDock.classList.contains("is-open"));
+    }
+    if (event.key === "Escape") setSideDockOpen(false);
+  });
+
+  sideDock.addEventListener("click", (event) => {
+    if (event.target === sideDock) setSideDockOpen(false);
+  });
+
+  sideDock.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => setSideDockOpen(false));
+  });
+}
+
 const askForm = document.getElementById("askForm");
 if (askForm) {
   askForm.addEventListener("submit", (event) => {
@@ -153,7 +279,7 @@ if (askForm) {
     const question = input.value.trim().toLowerCase();
 
     if (!question) {
-      answerBox.textContent = "Ask about MeetMind, Resume Analyzer, Harsh's skills, education, or contact details.";
+      answerBox.textContent = "Ask about MeetMind, Resume Analyzer, Harsh's skills, or contact details.";
       return;
     }
 
@@ -187,7 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (themeRipple.classList.contains("animating")) return;
       
       // Get the background color of the target theme
-      const nextBg = newTheme === "light" ? "#fbfcf7" : "#090b10";
+      const nextBg = newTheme === "light" ? "#f7f7f5" : "#050505";
       
       // Set ripple start state
       themeRipple.style.backgroundColor = nextBg;
