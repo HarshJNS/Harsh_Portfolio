@@ -122,16 +122,20 @@ html {
 
 body {
   min-height: 100vh;
-  background:
-    var(--bg-glow),
-    linear-gradient(90deg, var(--bg-grid-color) 1px, transparent 1px),
-    linear-gradient(var(--bg-grid-color) 1px, transparent 1px),
-    var(--bg);
-  background-size: 56px 56px;
+  background: var(--bg);
   color: var(--text);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   overflow-x: hidden;
   transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+}
+
+.interactive-dots {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 a,
@@ -160,6 +164,8 @@ button {
 }
 
 .site-shell {
+  position: relative;
+  z-index: 1;
   width: min(1240px, calc(100% - 40px));
   margin: 0 auto;
 }
@@ -603,13 +609,112 @@ mark {
   background: var(--project-bg);
 }
 
-.project img {
+.project-visual {
+  position: relative;
+  display: grid;
+  min-height: 250px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--inner-visual-bg);
+}
+
+.project-visual svg {
   width: 100%;
   height: 100%;
   min-height: 250px;
-  object-fit: cover;
+}
+
+.visual-window,
+.resume-sheet {
+  fill: var(--card-bg);
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+
+.visual-panel {
+  fill: color-mix(in srgb, var(--card-bg) 72%, transparent);
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+
+.visual-panel.highlight {
+  fill: color-mix(in srgb, var(--accent-color) 16%, transparent);
+}
+
+.visual-line {
+  fill: none;
+  stroke: var(--line);
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.visual-line.thick {
+  stroke: var(--muted);
+  stroke-width: 5;
+}
+
+.visual-dot {
+  fill: var(--accent-color);
+}
+
+.visual-dot.faint {
+  opacity: 0.45;
+}
+
+.visual-avatar {
+  fill: color-mix(in srgb, var(--accent-color) 16%, transparent);
+  stroke: var(--accent-color);
+  stroke-width: 2;
+}
+
+.video-frame {
+  fill: color-mix(in srgb, var(--accent-color) 16%, transparent);
+  stroke: var(--accent-color);
+  stroke-width: 1.5;
+}
+
+.play-symbol {
+  fill: var(--accent-color);
+}
+
+.score-ring {
+  fill: none;
+  stroke: var(--line);
+  stroke-linecap: round;
+  stroke-width: 8;
+}
+
+.score-ring.accent {
+  stroke: var(--accent-color);
+}
+
+.score-number {
+  fill: var(--ink);
+  font-family: Inter, sans-serif;
+  font-size: 34px;
+  font-weight: 800;
+}
+
+.score-label {
+  fill: var(--muted);
+  font-family: Inter, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.visual-caption {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  padding: 6px 9px;
   border: 1px solid var(--line);
-  filter: grayscale(0.12) saturate(0.85);
+  background: var(--card-bg);
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .tube-project {
@@ -653,80 +758,10 @@ mark {
   font-size: 0.82rem;
 }
 
-.score-visual {
-  display: grid;
-  place-items: center;
-  align-content: center;
-  min-height: 250px;
-  border: 1px solid var(--line);
-  background:
-    linear-gradient(135deg, var(--gradient-1-start), var(--gradient-2-start)),
-    var(--inner-visual-bg);
-}
-
 .tube-visual {
-  display: grid;
-  align-content: center;
-  gap: 22px;
-  min-height: 250px;
-  padding: 28px;
-  border: 1px solid var(--line);
   background:
     linear-gradient(135deg, var(--gradient-3-start), var(--gradient-1-start)),
     var(--inner-visual-bg);
-}
-
-.play-chip {
-  width: 62px;
-  height: 62px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--ink);
-  color: var(--bg);
-  font-size: 1.15rem;
-}
-
-.tube-lines {
-  display: grid;
-  gap: 10px;
-}
-
-.tube-lines span {
-  display: block;
-  height: 10px;
-  background: var(--line);
-}
-
-.tube-lines span:nth-child(1) {
-  width: 92%;
-}
-
-.tube-lines span:nth-child(2) {
-  width: 68%;
-}
-
-.tube-lines span:nth-child(3) {
-  width: 82%;
-  background: var(--accent-glow);
-}
-
-.tube-visual strong {
-  color: var(--ink);
-  font-size: 2rem;
-  line-height: 1;
-}
-
-.score-visual strong {
-  color: var(--ink);
-  font-size: 6rem;
-  line-height: 0.9;
-}
-
-.score-visual span {
-  color: var(--muted);
-  font-weight: 800;
-  letter-spacing: 0.28em;
 }
 
 .ask-layout {
@@ -924,9 +959,7 @@ mark {
     padding: 36px;
   }
 
-  .project img,
-  .score-visual,
-  .tube-visual {
+  .project-visual {
     min-height: 320px;
   }
 
@@ -1047,9 +1080,7 @@ mark {
     padding: 20px;
   }
 
-  .project img,
-  .tube-visual,
-  .score-visual {
+  .project-visual {
     min-height: 220px;
   }
 }

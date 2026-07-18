@@ -21,17 +21,17 @@ const knowledge = [
   {
     keys: ["skills", "stack", "tech", "tools"],
     answer:
-      "Harsh builds with Python, Flask, FastAPI, React, JavaScript, SQLite, ChromaDB, Gemini, embeddings, Whisper, AssemblyAI, PDF/DOCX parsing, GitHub, and deployment workflows. His strength is turning AI workflows into usable product systems.",
+      "Harsh works across Python, JavaScript, TypeScript, React, Next.js, Node.js, Express, Flask, FastAPI, MongoDB, PostgreSQL, SQLite, Redis, ChromaDB, Docker, Kubernetes, GitHub Actions, Gemini, embeddings, Whisper, and API testing. His strength is turning AI workflows into reliable full-stack systems.",
   },
   {
-    keys: ["college", "education", "university", "cgpa", "graduation"],
+    keys: ["college", "education", "university", "graduation"],
     answer:
-      "Harsh is a Computer Science Engineering student at IILM University. His expected graduation year is 2028 and his current CGPA is 7.45.",
+      "Harsh is a Computer Science Engineering student at IILM University, with an expected graduation year of 2028.",
   },
   {
     keys: ["contact", "email", "phone", "linkedin", "hire", "work"],
     answer:
-      `You can reach Harsh at ${email}, ${phone}, or LinkedIn: ${linkedIn}. He is best aligned with AI product systems, agentic workflows, automation tools, product engineering, and zero-to-one builds.`,
+      `You can reach Harsh at ${email}, ${phone}, or LinkedIn: ${linkedIn}. He is best aligned with AI systems, agentic workflows, automation tools, full-stack development, and zero-to-one builds.`,
   },
 ];
 
@@ -79,6 +79,70 @@ function updateClock() {
 
 updateClock();
 window.setInterval(updateClock, 30000);
+
+// Interactive dot field, adapted to the portfolio's active colour theme.
+const dotsCanvas = document.getElementById("interactiveDots");
+if (dotsCanvas && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  const dotsContext = dotsCanvas.getContext("2d");
+  const dotField = { dots: [], pointer: { x: -999, y: -999 }, time: 0 };
+  const spacing = 34;
+
+  const getThemeColours = () => {
+    const styles = getComputedStyle(document.documentElement);
+    return {
+      background: styles.getPropertyValue("--bg").trim(),
+      accent: styles.getPropertyValue("--accent-color").trim(),
+    };
+  };
+
+  const resizeDotField = () => {
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    dotsCanvas.width = window.innerWidth * ratio;
+    dotsCanvas.height = window.innerHeight * ratio;
+    dotsCanvas.style.width = `${window.innerWidth}px`;
+    dotsCanvas.style.height = `${window.innerHeight}px`;
+    dotsContext.setTransform(ratio, 0, 0, ratio, 0, 0);
+    dotField.dots = [];
+    for (let x = spacing / 2; x < window.innerWidth; x += spacing) {
+      for (let y = spacing / 2; y < window.innerHeight; y += spacing) {
+        dotField.dots.push({ x, y, phase: Math.random() * Math.PI * 2 });
+      }
+    }
+  };
+
+  const hexToRgb = (hex) => {
+    const parsed = Number.parseInt(hex.slice(1), 16);
+    return `${(parsed >> 16) & 255}, ${(parsed >> 8) & 255}, ${parsed & 255}`;
+  };
+
+  const drawDotField = () => {
+    const { background, accent } = getThemeColours();
+    const accentRgb = hexToRgb(accent);
+    dotField.time += 0.012;
+    dotsContext.fillStyle = background;
+    dotsContext.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+    dotField.dots.forEach((dot) => {
+      const distance = Math.hypot(dot.x - dotField.pointer.x, dot.y - dotField.pointer.y);
+      const influence = Math.max(0, 1 - distance / 160);
+      const radius = 1.05 + influence * 3.1 + Math.sin(dotField.time + dot.phase) * 0.18;
+      const opacity = 0.12 + influence * 0.44;
+      dotsContext.beginPath();
+      dotsContext.arc(dot.x, dot.y, radius, 0, Math.PI * 2);
+      dotsContext.fillStyle = `rgba(${accentRgb}, ${opacity})`;
+      dotsContext.fill();
+    });
+    window.requestAnimationFrame(drawDotField);
+  };
+
+  window.addEventListener("pointermove", (event) => {
+    dotField.pointer.x = event.clientX;
+    dotField.pointer.y = event.clientY;
+  }, { passive: true });
+  window.addEventListener("resize", resizeDotField);
+  resizeDotField();
+  drawDotField();
+}
 
 const askForm = document.getElementById("askForm");
 if (askForm) {

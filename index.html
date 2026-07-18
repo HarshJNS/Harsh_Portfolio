@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Harsh - AI product and systems builder creating agents, workflows, automation tools, and AI-driven backends."
+      content="Harsh - AI systems builder creating agents, workflows, full-stack applications, and AI-driven backends."
     />
     <title>Harsh | Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -23,6 +23,8 @@
     </script>
   </head>
   <body data-theme="dark">
+    <canvas class="interactive-dots" id="interactiveDots" aria-hidden="true"></canvas>
+
     <!-- Theme Transition Ripple Overlay -->
     <div class="theme-transition-ripple" id="themeRipple"></div>
 
@@ -63,7 +65,7 @@
         <p class="intro-copy">
           I build AI systems that turn messy work into clear, useful products.
         </p>
-        <p class="hero-context">Agentic workflows <span>·</span> AI backends <span>·</span> Product engineering</p>
+        <p class="hero-context">Agentic workflows <span>·</span> AI backends <span>·</span> Full-stack development</p>
         <div class="hero-actions">
           <a class="primary-link" href="#projects">View selected work <span aria-hidden="true">↓</span></a>
           <a class="secondary-link" href="#ask">Let's talk <span aria-hidden="true">↗</span></a>
@@ -92,13 +94,13 @@
             <span>2026 - Now</span>
           </article>
           <article class="row">
-            <h2>Product Engineering</h2>
-            <p>Shipping React, Flask, FastAPI, and Python apps from idea to polished working product.</p>
+            <h2>Full-Stack Development</h2>
+            <p>Building responsive web applications with React, Node.js, Python, Flask, and FastAPI.</p>
             <span>2025 - Now</span>
           </article>
           <article class="row">
             <h2>B.Tech CSE</h2>
-            <p>IILM University · Expected graduation 2028 · CGPA 7.45.</p>
+            <p>IILM University · Expected graduation 2028.</p>
             <span>2024 - Now</span>
           </article>
         </div>
@@ -107,7 +109,7 @@
       <section class="section" id="expertise">
         <p class="label">Expertise</p>
         <p class="statement">
-          I blend <mark>agentic AI</mark>, backend systems, product thinking, and simple UI to
+          I blend <mark>agentic AI</mark>, backend systems, full-stack development, and simple UI to
           build tools that feel clear, useful, and ready to show.
         </p>
 
@@ -124,13 +126,33 @@
           </article>
           <article>
             <span>03</span>
-            <h2>Product Engineering</h2>
-            <p>React, JavaScript, responsive layouts, product flows, deployment, and debugging.</p>
+            <h2>MERN Stack</h2>
+            <p>MongoDB, Express, React, Node.js, REST APIs, authentication, and responsive web applications.</p>
           </article>
           <article>
             <span>04</span>
+            <h2>Cloud & DevOps</h2>
+            <p>Docker, Kubernetes, Linux, CI/CD, GitHub Actions, deployments, and environment management.</p>
+          </article>
+          <article>
+            <span>05</span>
+            <h2>Frontend Stack</h2>
+            <p>React, Next.js, TypeScript, JavaScript, HTML, CSS, Tailwind CSS, and accessible interfaces.</p>
+          </article>
+          <article>
+            <span>06</span>
+            <h2>Data & Search</h2>
+            <p>MongoDB, PostgreSQL, SQLite, Redis, ChromaDB, vector search, embeddings, and RAG pipelines.</p>
+          </article>
+          <article>
+            <span>07</span>
             <h2>AI Product Systems</h2>
             <p>Meeting intelligence, resume intelligence, video summaries, document processing, and AI dashboards.</p>
+          </article>
+          <article>
+            <span>08</span>
+            <h2>Languages & Tools</h2>
+            <p>Python, JavaScript, TypeScript, SQL, Git, GitHub, Postman, VS Code, and API testing.</p>
           </article>
         </div>
       </section>
@@ -154,7 +176,23 @@
               </div>
               <a href="https://github.com/HarshJNS/MeetMind" target="_blank" rel="noopener noreferrer">View GitHub ↗</a>
             </div>
-            <img src="assets/meetmind-hero.png" alt="MeetMind product preview" />
+            <div class="project-visual meetmind-visual" aria-hidden="true">
+              <svg viewBox="0 0 360 280" role="presentation">
+                <rect class="visual-window" x="22" y="22" width="316" height="236" rx="12" />
+                <path class="visual-line" d="M22 62h316" />
+                <circle class="visual-dot" cx="45" cy="42" r="5" />
+                <circle class="visual-dot faint" cx="62" cy="42" r="5" />
+                <circle class="visual-dot faint" cx="79" cy="42" r="5" />
+                <rect class="visual-panel" x="44" y="86" width="112" height="146" rx="7" />
+                <circle class="visual-avatar" cx="72" cy="114" r="12" />
+                <path class="visual-line thick" d="M96 108h38M96 123h26M61 155h77M61 172h59M61 189h68" />
+                <rect class="visual-panel highlight" x="174" y="86" width="140" height="62" rx="7" />
+                <path class="visual-line thick" d="M193 108h80M193 124h53" />
+                <rect class="visual-panel" x="174" y="164" width="140" height="68" rx="7" />
+                <path class="visual-line thick" d="M193 187h84M193 204h48" />
+              </svg>
+              <span class="visual-caption">Meeting intelligence</span>
+            </div>
           </article>
 
           <article class="project tube-project">
@@ -171,14 +209,18 @@
               </div>
               <a href="https://github.com/HarshJNS/yt_summarizer" target="_blank" rel="noopener noreferrer">View GitHub ↗</a>
             </div>
-            <div class="tube-visual" aria-hidden="true">
-              <div class="play-chip">▶</div>
-              <div class="tube-lines">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-              <strong>AI Notes</strong>
+            <div class="project-visual tube-visual" aria-hidden="true">
+              <svg viewBox="0 0 360 280" role="presentation">
+                <rect class="visual-window" x="22" y="22" width="316" height="236" rx="12" />
+                <path class="visual-line" d="M22 62h316" />
+                <rect class="video-frame" x="44" y="86" width="120" height="92" rx="7" />
+                <path class="play-symbol" d="m96 113 28 19-28 19z" />
+                <path class="visual-line thick" d="M44 198h120M44 214h82" />
+                <rect class="visual-panel highlight" x="188" y="86" width="104" height="22" rx="5" />
+                <path class="visual-line thick" d="M188 130h106M188 147h76M188 164h94M188 181h58M188 215h79" />
+                <circle class="visual-avatar" cx="204" cy="215" r="10" />
+              </svg>
+              <span class="visual-caption">Video to notes</span>
             </div>
           </article>
 
@@ -195,9 +237,16 @@
               </div>
               <a href="https://github.com/HarshJNS/Intelli_resume_analyzer_2" target="_blank" rel="noopener noreferrer">View GitHub ↗</a>
             </div>
-            <div class="score-visual" aria-hidden="true">
-              <strong>86</strong>
-              <span>ATS</span>
+            <div class="project-visual resume-visual" aria-hidden="true">
+              <svg viewBox="0 0 360 280" role="presentation">
+                <rect class="resume-sheet" x="86" y="26" width="188" height="228" rx="10" />
+                <path class="visual-line thick" d="M112 64h93M112 82h130M112 111h53M112 128h112M112 145h91" />
+                <path class="score-ring" d="M140 212a42 42 0 1 1 39 0" />
+                <path class="score-ring accent" d="M140 212a42 42 0 0 1 39-44" />
+                <text class="score-number" x="159" y="210" text-anchor="middle">86</text>
+                <text class="score-label" x="159" y="229" text-anchor="middle">ATS MATCH</text>
+              </svg>
+              <span class="visual-caption">Resume intelligence</span>
             </div>
           </article>
         </div>
@@ -212,7 +261,7 @@
               <span class="profile-icon" aria-hidden="true">HR</span>
               <p>
                 Harsh<br />
-                <span>AI product systems · Agentic workflows · Product engineering</span>
+                <span>AI systems · Agentic workflows · Full-stack development</span>
               </p>
             </div>
           </div>
