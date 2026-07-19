@@ -596,7 +596,7 @@ button {
   display: inline-grid;
   justify-items: center;
   margin-top: clamp(96px, 16vh, 154px);
-  margin-bottom: 16px;
+  margin-bottom: 42px;
   color: var(--ink);
   line-height: 0.84;
 }
@@ -668,28 +668,34 @@ button {
   transform: translateY(0);
 }
 
-.intro-copy {
-  max-width: 640px;
+.hero-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 34px;
+  max-width: 800px;
+}
+
+.intro-kicker {
   color: var(--muted);
-  font-size: clamp(1.08rem, 1.8vw, 1.32rem);
-  line-height: 1.65;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  text-align: center;
 }
 
-.display-script {
-  display: inline-block;
-  color: var(--accent-color);
+.intro-title {
+  color: var(--ink);
   font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 1.13em;
+  font-size: clamp(2.1rem, 4.4vw, 3.4rem);
   font-style: italic;
-  font-weight: 700;
-  letter-spacing: -0.06em;
-  line-height: 0.86;
-  text-shadow: 0 10px 30px color-mix(in srgb, var(--accent-color) 24%, transparent);
-}
-
-.intro-copy .display-script {
-  margin-top: 8px;
-  font-size: clamp(2.7rem, 5.2vw, 4.55rem);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.1;
+  text-align: center;
 }
 
 .hero-corners {
@@ -1758,9 +1764,8 @@ mark {
     font-size: clamp(6rem, 8.2vw, 8.8rem);
   }
 
-  .intro-copy {
+  .hero-intro {
     max-width: 760px;
-    font-size: 1.12rem;
   }
 
   .top-links a {
