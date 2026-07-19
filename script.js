@@ -144,7 +144,7 @@ const canTiltCards = window.matchMedia("(hover: hover) and (pointer: fine)").mat
   && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 if (canTiltCards) {
-  document.querySelectorAll(".project, .skill-list article, .availability-card").forEach((card) => {
+  document.querySelectorAll(".project, .skill-list article").forEach((card) => {
     card.classList.add("tilt-card");
 
     card.addEventListener("pointermove", (event) => {
@@ -372,6 +372,11 @@ document.addEventListener("DOMContentLoaded", () => {
       this.phi = this.options.initialPhi;
       this.gamma = this.options.initialGamma;
 
+      this.baseLambda = this.lambda;
+      this.basePhi = this.phi;
+      this.hoverOffset = { lambda: 0, phi: 0 };
+      this.isHovered = false;
+
       this.targetLambda = this.lambda;
       this.targetPhi = this.phi;
       this.isTransitioning = false;
@@ -575,24 +580,64 @@ document.addEventListener("DOMContentLoaded", () => {
         this.isTransitioning = false;
         this.dragStart.x = e.clientX;
         this.dragStart.y = e.clientY;
-        this.dragStartRot.lambda = this.lambda;
-        this.dragStartRot.phi = this.phi;
+        this.dragStartRot.lambda = this.baseLambda;
+        this.dragStartRot.phi = this.basePhi;
         this.svg.style.cursor = "grabbing";
         try { this.svg.setPointerCapture(e.pointerId); } catch(err) {}
       });
 
       this.svg.addEventListener("pointermove", e => {
-        if (!this.isDragging) return;
-        const dx = e.clientX - this.dragStart.x;
-        const dy = e.clientY - this.dragStart.y;
+        const rect = this.svg.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
         
-        const sens = 0.35;
-        this.lambda = this.dragStartRot.lambda - dx * sens;
-        this.phi = Math.max(-85, Math.min(85, this.dragStartRot.phi + dy * sens));
+        const dx = mx - this.cx;
+        const dy = my - this.cy;
+        const dist = Math.hypot(dx, dy);
+
+        if (this.isDragging) {
+          const dragDx = e.clientX - this.dragStart.x;
+          const dragDy = e.clientY - this.dragStart.y;
+          
+          const sens = 0.35;
+          this.baseLambda = this.dragStartRot.lambda - dragDx * sens;
+          this.basePhi = Math.max(-85, Math.min(85, this.dragStartRot.phi + dragDy * sens));
+          this.lambda = this.baseLambda;
+          this.phi = this.basePhi;
+          return;
+        }
+
+        // Pointer hover tracking
+        if (dist < this.R + 30) {
+          this.isHovered = true;
+          this.hoverOffset.lambda = -(dx / (this.R + 30)) * 25;
+          this.hoverOffset.phi = (dy / (this.R + 30)) * 20;
+          this.userInteractedTime = Date.now();
+        } else {
+          this.isHovered = false;
+          this.hoverOffset.lambda = 0;
+          this.hoverOffset.phi = 0;
+        }
       });
 
       const endDrag = e => {
         if (!this.isDragging) return;
+        
+        // Click-to-center hit test
+        const dragDx = Math.abs(e.clientX - this.dragStart.x);
+        const dragDy = Math.abs(e.clientY - this.dragStart.y);
+        
+        if (dragDx < 5 && dragDy < 5) {
+          const rect = this.svg.getBoundingClientRect();
+          const mx = e.clientX - rect.left;
+          const my = e.clientY - rect.top;
+          
+          const ll = this.unproject(mx, my, this.lambda, this.phi, this.gamma, this.R, this.cx, this.cy);
+          if (ll) {
+            this.rotateTo(ll.lng, ll.lat);
+          }
+        }
+
         this.isDragging = false;
         this.userInteractedTime = Date.now();
         this.svg.style.cursor = "grab";
@@ -601,6 +646,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       this.svg.addEventListener("pointerup", endDrag);
       this.svg.addEventListener("pointercancel", endDrag);
+      this.svg.addEventListener("pointerleave", () => {
+        this.isHovered = false;
+        this.hoverOffset.lambda = 0;
+        this.hoverOffset.phi = 0;
+      });
 
       window.addEventListener("resize", () => this.resize());
     }
@@ -609,6 +659,31 @@ document.addEventListener("DOMContentLoaded", () => {
       this.targetLambda = lng;
       this.targetPhi = lat;
       this.isTransitioning = true;
+    }
+
+    unproject(px, py, lambda, phi, gamma, R, cx, cy) {
+      const Ry = (px - cx) / R;
+      const Rz = -(py - cy) / R;
+      const r2 = Ry * Ry + Rz * Rz;
+      if (r2 > 1) return null;
+      
+      const cg = Math.cos(gamma * D2R);
+      const sg = Math.sin(gamma * D2R);
+      const y1 = Ry * cg + Rz * sg;
+      const z1 = -Ry * sg + Rz * cg;
+      
+      const x1 = Math.sqrt(Math.max(0, 1 - r2));
+      
+      const cp = Math.cos(phi * D2R);
+      const sp = Math.sin(phi * D2R);
+      const x0 = x1 * cp - z1 * sp;
+      const y0 = y1;
+      const z0 = x1 * sp + z1 * cp;
+      
+      const lat = Math.asin(Math.max(-1, Math.min(1, z0))) * R2D;
+      let lng = Math.atan2(y0, x0) * R2D + lambda;
+      lng = ((lng + 180) % 360 + 360) % 360 - 180;
+      return { lng, lat };
     }
 
     project(lng, lat, lambda, phi, gamma, R, cx, cy) {
@@ -897,25 +972,44 @@ document.addEventListener("DOMContentLoaded", () => {
         lastTime = now;
 
         if (this.isTransitioning) {
-          const dx = this.targetLambda - this.lambda;
-          const dy = this.targetPhi - this.phi;
+          const dx = this.targetLambda - this.baseLambda;
+          const dy = this.targetPhi - this.basePhi;
 
           let ndx = ((dx + 180) % 360 + 360) % 360 - 180;
 
-          this.lambda += ndx * 0.08;
-          this.phi += dy * 0.08;
+          this.baseLambda += ndx * 0.08;
+          this.basePhi += dy * 0.08;
 
           if (Math.abs(ndx) < 0.1 && Math.abs(dy) < 0.1) {
-            this.lambda = this.targetLambda;
-            this.phi = this.targetPhi;
+            this.baseLambda = this.targetLambda;
+            this.basePhi = this.targetPhi;
             this.isTransitioning = false;
             this.userInteractedTime = Date.now();
           }
+          
+          this.lambda = this.baseLambda;
+          this.phi = this.basePhi;
           this.render();
-        } else if (this.options.autoRotate && !this.isDragging) {
-          const sinceUser = Date.now() - this.userInteractedTime;
-          if (sinceUser > 1500) {
-            this.lambda += this.options.autoRotateSpeed * dt;
+        } else {
+          if (this.options.autoRotate && !this.isDragging) {
+            const sinceUser = Date.now() - this.userInteractedTime;
+            if (sinceUser > 1500) {
+              this.baseLambda += this.options.autoRotateSpeed * dt;
+            }
+          }
+
+          if (this.isDragging) {
+            this.render();
+          } else {
+            const targetL = this.baseLambda + this.hoverOffset.lambda;
+            const targetP = this.basePhi + this.hoverOffset.phi;
+            
+            const diffL = targetL - this.lambda;
+            const diffP = targetP - this.phi;
+
+            this.lambda += diffL * 0.1;
+            this.phi += diffP * 0.1;
+            
             this.render();
           }
         }
