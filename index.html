@@ -24,8 +24,6 @@
   </head>
   <body data-theme="dark">
     <canvas class="interactive-dots" id="interactiveDots" aria-hidden="true"></canvas>
-    <div class="gamer-cursor" id="gamerCursor" aria-hidden="true"><span class="cursor-core"></span><span class="cursor-corners"></span></div>
-
     <!-- Theme Transition Ripple Overlay -->
     <div class="theme-transition-ripple" id="themeRipple"></div>
 
@@ -58,10 +56,10 @@
         </div>
         <p class="command-label">Navigate</p>
         <nav class="command-list" aria-label="Quick navigation">
-          <a class="command-item" href="#top" data-command="home start top"><span>⌂</span><b>Home<small>Back to the beginning</small></b><em>↵</em></a>
-          <a class="command-item" href="#experience" data-command="about experience"><span>◉</span><b>About<small>My background and focus</small></b></a>
-          <a class="command-item" href="#projects" data-command="work projects meetmind tubeai resume"><span>▣</span><b>Projects<small>View selected work</small></b></a>
-          <a class="command-item" href="#expertise" data-command="skills stack mern docker kubernetes"><span>✦</span><b>Skill set<small>Tools and technologies</small></b></a>
+          <a class="command-item" href="index.html" data-command="home start top"><span>⌂</span><b>Home<small>Back to the beginning</small></b><em>↵</em></a>
+          <a class="command-item" href="about.html" data-command="about experience"><span>◉</span><b>About<small>My background and focus</small></b></a>
+          <a class="command-item" href="projects.html" data-command="work projects meetmind tubeai resume"><span>▣</span><b>Projects<small>View selected work</small></b></a>
+          <a class="command-item" href="stack.html" data-command="skills stack mern docker kubernetes"><span>✦</span><b>Skill set<small>Tools and technologies</small></b></a>
           <a class="command-item" href="#ask" data-command="contact talk email hire"><span>↗</span><b>Let's talk<small>Start a conversation</small></b></a>
         </nav>
         <div class="command-footer"><span>↑ ↓ Navigate</span><span>↵ Open</span><span>⌘K Toggle</span></div>
@@ -69,11 +67,12 @@
     </div>
 
     <nav class="site-nav" aria-label="Primary navigation">
-      <a class="nav-brand" href="#top" aria-label="Harsh home">H<span>.</span></a>
+      <a class="nav-brand" href="index.html" aria-label="Harsh home">H<span>.</span></a>
       <div class="nav-links">
-        <a href="#projects">Work</a>
-        <a href="#experience">About</a>
-        <a href="#expertise">Stack</a>
+        <a class="is-current" href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="projects.html">Work</a>
+        <a href="stack.html">Stack</a>
       </div>
       <a class="nav-cta" href="#ask">Let's build <span aria-hidden="true">↗</span></a>
     </nav>
@@ -133,19 +132,15 @@
         <p class="statement skill-statement">
           The Magic <span class="display-script">Behind</span>
         </p>
-        <svg class="skill-orb" viewBox="0 0 420 250" aria-hidden="true">
-          <defs>
-            <radialGradient id="orbGlow" cx="50%" cy="42%" r="58%"><stop offset="0" stop-color="var(--accent-color)" stop-opacity=".38"/><stop offset=".42" stop-color="var(--accent-color)" stop-opacity=".08"/><stop offset="1" stop-color="var(--accent-color)" stop-opacity="0"/></radialGradient>
-            <linearGradient id="orbStroke" x1="0" x2="1"><stop stop-color="var(--ink)" stop-opacity=".14"/><stop offset=".5" stop-color="var(--ink)" stop-opacity=".78"/><stop offset="1" stop-color="var(--accent-color)" stop-opacity=".38"/></linearGradient>
-          </defs>
-          <ellipse cx="210" cy="125" rx="122" ry="88" fill="url(#orbGlow)"/>
-          <path d="M92 129c37-93 163-116 235-39 62 66-5 144-95 112-76-27-74-119 15-136 73-14 119 61 71 121-48 59-154 25-141-49 12-72 127-80 162-9" fill="none" stroke="url(#orbStroke)" stroke-linecap="round" stroke-width="11"/>
-          <path d="M113 173c-35-65 31-139 103-118 78 23 71 128-10 142-69 13-108-64-62-112 50-52 143-7 125 59-15 58-104 60-127 8" fill="none" stroke="var(--ink)" stroke-linecap="round" stroke-opacity=".34" stroke-width="7"/>
-          <circle cx="210" cy="125" r="14" fill="var(--accent-color)" fill-opacity=".72"/>
-        </svg>
+        <div class="skill-flower" aria-hidden="true"><img src="assets/skill-flower.png" alt="" /></div>
         <p class="section-support">A focused mix of AI, full-stack engineering, cloud tooling, and product-minded execution.</p>
         <ul class="skill-pills" aria-label="Technology stack">
-          <li>Python</li><li>JavaScript</li><li>TypeScript</li><li>React</li><li>Next.js</li><li>Node.js</li><li>Express</li><li>FastAPI</li><li>Flask</li><li>MongoDB</li><li>PostgreSQL</li><li>Redis</li><li>ChromaDB</li><li>Docker</li><li>Kubernetes</li><li>GitHub Actions</li><li>Gemini</li><li>RAG</li><li>Tailwind CSS</li><li>Git</li><li>Postman</li>
+          <li><img class="tech-icon" src="https://cdn.simpleicons.org/python/3776AB" alt="" />Python</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/tensorflow/FF6F00" alt="" />TensorFlow</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/pytorch/EE4C2C" alt="" />PyTorch</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/scikitlearn/F7931E" alt="" />Scikit-learn</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/langchain/FFFFFF" alt="" />LangChain</li>
+          <li><img class="tech-icon" src="https://cdn.simpleicons.org/nextdotjs/FFFFFF" alt="" />Next.js</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/react/61DAFB" alt="" />React</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/tailwindcss/06B6D4" alt="" />Tailwind CSS</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/framer/FFFFFF" alt="" />Framer Motion</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/typescript/3178C6" alt="" />TypeScript</li>
+          <li><img class="tech-icon" src="https://cdn.simpleicons.org/nodedotjs/5FA04E" alt="" />Node.js</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/express/FFFFFF" alt="" />Express</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/fastapi/009688" alt="" />FastAPI</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/prisma/FFFFFF" alt="" />Prisma</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/flask/FFFFFF" alt="" />Flask</li>
+          <li><img class="tech-icon" src="https://cdn.simpleicons.org/postgresql/4169E1" alt="" />PostgreSQL</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/mongodb/47A248" alt="" />MongoDB</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/redis/DC382D" alt="" />Redis</li><li><svg class="tech-icon tech-icon--chroma" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="#b8f55d" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="#68d9c0" stroke-width="2"/><circle cx="12" cy="12" r="1.5" fill="#f5f7f4"/></svg>ChromaDB</li>
+          <li><img class="tech-icon" src="https://cdn.simpleicons.org/docker/2496ED" alt="" />Docker</li><li><svg class="tech-icon tech-icon--aws" viewBox="0 0 28 24" aria-hidden="true"><text x="2" y="14" fill="#f5f7f4" font-family="Arial, sans-serif" font-size="12" font-weight="700">aws</text><path d="M3 18c6 3 14 3 21-1" fill="none" stroke="#ff9900" stroke-linecap="round" stroke-width="2"/></svg>AWS</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/vercel/FFFFFF" alt="" />Vercel</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/githubactions/2088FF" alt="" />GitHub Actions</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/linux/FCC624" alt="" />Linux</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/git/F05032" alt="" />Git</li>
+          <li><img class="tech-icon" src="https://cdn.simpleicons.org/googlegemini/8E75B2" alt="" />Gemini</li><li><svg class="tech-icon tech-icon--rag" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 7 6 5 6-5M6 17l6-5 6 5" fill="none" stroke="#b8f55d" stroke-linecap="round" stroke-width="1.6"/><circle cx="6" cy="7" r="2.2" fill="#68d9c0"/><circle cx="18" cy="7" r="2.2" fill="#68d9c0"/><circle cx="12" cy="12" r="2.2" fill="#f5f7f4"/><circle cx="6" cy="17" r="2.2" fill="#68d9c0"/><circle cx="18" cy="17" r="2.2" fill="#68d9c0"/></svg>RAG</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/javascript/F7DF1E" alt="" />JavaScript</li><li><img class="tech-icon" src="https://cdn.simpleicons.org/postman/FF6C37" alt="" />Postman</li>
         </ul>
       </section>
 

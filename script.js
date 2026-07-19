@@ -169,36 +169,6 @@ if (canTiltCards) {
   });
 }
 
-const canUseCustomCursor = window.matchMedia("(hover: hover) and (pointer: fine)").matches
-  && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const gamerCursor = document.getElementById("gamerCursor");
-if (canUseCustomCursor && gamerCursor) {
-  const cursorTarget = { x: -100, y: -100 };
-  const cursorPosition = { x: -100, y: -100 };
-  document.body.classList.add("has-custom-cursor");
-
-  const renderCursor = () => {
-    cursorPosition.x += (cursorTarget.x - cursorPosition.x) * 0.22;
-    cursorPosition.y += (cursorTarget.y - cursorPosition.y) * 0.22;
-    gamerCursor.style.left = `${cursorPosition.x}px`;
-    gamerCursor.style.top = `${cursorPosition.y}px`;
-    window.requestAnimationFrame(renderCursor);
-  };
-
-  window.addEventListener("pointermove", (event) => {
-    cursorTarget.x = event.clientX;
-    cursorTarget.y = event.clientY;
-    gamerCursor.classList.add("is-visible");
-  }, { passive: true });
-  window.addEventListener("pointerout", (event) => {
-    if (!event.relatedTarget) gamerCursor.classList.remove("is-visible");
-  });
-  document.addEventListener("pointerover", (event) => {
-    gamerCursor.classList.toggle("is-active", Boolean(event.target.closest("a, button, input, textarea, select, [role='button']")));
-  });
-  renderCursor();
-}
-
 const sideDock = document.getElementById("sideDock");
 const sideDockToggle = document.getElementById("sideDockToggle");
 if (sideDock && sideDockToggle) {
@@ -268,6 +238,23 @@ if (sideDock && sideDockToggle) {
   sideDock.querySelectorAll("a").forEach((link) => {
     link.addEventListener("click", () => setSideDockOpen(false));
   });
+}
+
+const aboutTimeline = document.getElementById("aboutTimeline");
+if (aboutTimeline) {
+  const timelineProgress = aboutTimeline.querySelector(".timeline-progress");
+  const timelineMarker = aboutTimeline.querySelector(".timeline-marker");
+  const updateTimelineProgress = () => {
+    const bounds = aboutTimeline.getBoundingClientRect();
+    const travel = Math.max(1, bounds.height - window.innerHeight * 0.38);
+    const progress = Math.min(1, Math.max(0, (window.innerHeight * 0.42 - bounds.top) / travel));
+    const percentage = `${progress * 100}%`;
+    timelineProgress.style.height = percentage;
+    timelineMarker.style.top = percentage;
+  };
+  window.addEventListener("scroll", updateTimelineProgress, { passive: true });
+  window.addEventListener("resize", updateTimelineProgress);
+  updateTimelineProgress();
 }
 
 const askForm = document.getElementById("askForm");
