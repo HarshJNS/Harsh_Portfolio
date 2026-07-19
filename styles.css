@@ -576,6 +576,7 @@ button {
   color: var(--muted);
   font-size: 0.88rem;
   line-height: 1.5;
+  margin-bottom: 24px;
 }
 
 .meta-icon {
@@ -595,7 +596,7 @@ button {
   display: inline-grid;
   justify-items: center;
   margin-top: clamp(96px, 16vh, 154px);
-  margin-bottom: 38px;
+  margin-bottom: 16px;
   color: var(--ink);
   line-height: 0.84;
 }
