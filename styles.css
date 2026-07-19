@@ -948,7 +948,9 @@ button {
 .skill-flower {
   position: relative;
   width: min(390px, 82vw);
-  margin: 0 auto 16px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  margin: 48px auto 16px;
 }
 
 .skill-flower::before {
@@ -978,7 +980,9 @@ button {
 }
 
 .skill-flower img {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   z-index: 1;
   width: 100%;
   height: auto;
