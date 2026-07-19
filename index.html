@@ -106,24 +106,44 @@
       </section>
 
       <section class="section" id="experience">
-        <p class="label">Experience</p>
-        <p class="lead">
-          I am a Computer Science student who <strong>builds AI systems that actually work</strong>.
-          My work sits around agentic AI, automation, product systems, and full-stack execution.
-          I showcase what I can build by turning ideas into usable products, not just prototypes.
-        </p>
-
-        <div class="rows">
-          <article class="row">
-            <h2>AI Product & Systems Builder</h2>
-            <p>Building agents, workflow tools, AI backends, and product systems with real use cases.</p>
-            <span>2026 - Now</span>
-          </article>
-          <article class="row">
-            <h2>Full-Stack Development</h2>
-            <p>Building responsive web applications with React, Node.js, Python, Flask, and FastAPI.</p>
-            <span>2025 - Now</span>
-          </article>
+        <p class="label">Availability</p>
+        <div class="availability-card tilt-card">
+          <div class="availability-left">
+            <div class="availability-header">
+              <p class="availability-kicker">AVAILABLE GLOBALLY</p>
+              <h2 class="availability-title">Adaptable across time zones</h2>
+            </div>
+            <div class="availability-globe">
+              <div id="globe-container"></div>
+            </div>
+          </div>
+          <div class="availability-right">
+            <div class="timezone-pills">
+              <button class="tz-pill" data-lat="51.5074" data-lng="-0.1278" data-tz="UK" data-label="United Kingdom">
+                <span>UK 🇬🇧</span>
+                <span class="tz-time" id="tz-uk-time">--:-- --</span>
+              </button>
+              <button class="tz-pill is-active" data-lat="20.5937" data-lng="78.9629" data-tz="India" data-label="India">
+                <span>India 🇮🇳</span>
+                <span class="tz-time" id="tz-in-time">--:-- --</span>
+              </button>
+              <button class="tz-pill" data-lat="40.7128" data-lng="-74.0060" data-tz="USA" data-label="USA">
+                <span>USA 🇺🇸</span>
+                <span class="tz-time" id="tz-us-time">--:-- --</span>
+              </button>
+            </div>
+            
+            <div class="remote-status">
+              <svg class="location-pin" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <div class="remote-text">
+                <span class="remote-label">REMOTE</span>
+                <span class="remote-country" id="active-country">India</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

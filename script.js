@@ -144,7 +144,7 @@ const canTiltCards = window.matchMedia("(hover: hover) and (pointer: fine)").mat
   && !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 if (canTiltCards) {
-  document.querySelectorAll(".project, .skill-list article").forEach((card) => {
+  document.querySelectorAll(".project, .skill-list article, .availability-card").forEach((card) => {
     card.classList.add("tilt-card");
 
     card.addEventListener("pointermove", (event) => {
@@ -337,5 +337,651 @@ document.addEventListener("DOMContentLoaded", () => {
       themeRipple.addEventListener("transitionend", onTransitionEnd);
     });
   }
+
+  // --- 3D TACTICAL GLOBE ---
+  const D2R = Math.PI / 180;
+  const R2D = 180 / Math.PI;
+
+  class TacticalGlobe {
+    constructor(containerId, options = {}) {
+      this.container = document.getElementById(containerId);
+      if (!this.container) return;
+
+      this.options = Object.assign({
+        dataUrl: "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json",
+        oceanColor: "#080808",
+        landFill: "rgba(255, 255, 255, 0.08)",
+        landStroke: "rgba(255, 255, 255, 0.16)",
+        strokeWidth: 0.5,
+        glowColor: "#168f4b",
+        glowIntensity: 0.35,
+        autoRotate: true,
+        autoRotateSpeed: 4.5,
+        initialLambda: 78.9629, // India longitude
+        initialPhi: 20.5937,   // India latitude
+        initialGamma: 0,
+        markers: [
+          { label: "India", lat: 20.5937, lng: 78.9629 },
+          { label: "UK", lat: 51.5074, lng: -0.1278 },
+          { label: "USA", lat: 40.7128, lng: -74.0060 }
+        ]
+      }, options);
+
+      // Centered initially on India
+      this.lambda = this.options.initialLambda;
+      this.phi = this.options.initialPhi;
+      this.gamma = this.options.initialGamma;
+
+      this.targetLambda = this.lambda;
+      this.targetPhi = this.phi;
+      this.isTransitioning = false;
+
+      this.isDragging = false;
+      this.dragStart = { x: 0, y: 0 };
+      this.dragStartRot = { lambda: 0, phi: 0 };
+      this.userInteractedTime = 0;
+
+      this.features = [];
+      this.width = 300;
+      this.height = 250;
+      this.R = 100;
+      this.cx = 150;
+      this.cy = 125;
+
+      this.init();
+    }
+
+    async init() {
+      this.setupSvg();
+      this.resize();
+      this.setupEvents();
+      
+      try {
+        const response = await fetch(this.options.dataUrl);
+        if (!response.ok) throw new Error("Globe fetch failed");
+        const topo = await response.json();
+        this.features = this.decodeTopoJson(topo);
+        this.render();
+        this.animate();
+      } catch (err) {
+        console.error("TacticalGlobe load failed:", err);
+        this.container.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:11px;color:rgba(255,107,107,0.7);flex-direction:column;gap:6px;">
+            <span>Map data unavailable</span>
+            <span style="font-size:9px;opacity:0.6;">Check connection</span>
+          </div>`;
+      }
+    }
+
+    setupSvg() {
+      this.container.innerHTML = "";
+      
+      this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      this.svg.setAttribute("style", "display:block;width:100%;height:100%;cursor:grab;touch-action:none;user-select:none;");
+      this.container.appendChild(this.svg);
+      
+      const style = document.createElementNS("http://www.w3.org/2000/svg", "style");
+      style.textContent = `
+        .mm-c { transition: fill 140ms ease; }
+        .mm-c:hover { filter: brightness(1.2); }
+        @keyframes mm-pulse {
+          0%, 100% { transform: scale(1); opacity: 0.55; }
+          50% { transform: scale(1.6); opacity: 0.05; }
+        }
+        .mm-pulse {
+          animation: mm-pulse 2.4s ease-out infinite;
+          transform-box: fill-box;
+          transform-origin: center;
+        }
+      `;
+      this.svg.appendChild(style);
+
+      const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+      this.svg.appendChild(defs);
+
+      this.gAtm = document.createElementNS("http://www.w3.org/2000/svg", "radialGradient");
+      this.gAtm.setAttribute("id", "gAtm");
+      this.gAtm.setAttribute("cx", "50%");
+      this.gAtm.setAttribute("cy", "50%");
+      this.gAtm.setAttribute("r", "50%");
+      defs.appendChild(this.gAtm);
+
+      this.gO = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+      this.gO.setAttribute("id", "gO");
+      this.gO.setAttribute("x1", "0%");
+      this.gO.setAttribute("y1", "0%");
+      this.gO.setAttribute("x2", "100%");
+      this.gO.setAttribute("y2", "100%");
+      defs.appendChild(this.gO);
+      
+      const gShade = document.createElementNS("http://www.w3.org/2000/svg", "radialGradient");
+      gShade.setAttribute("id", "gShade");
+      gShade.setAttribute("cx", "38%");
+      gShade.setAttribute("cy", "32%");
+      gShade.setAttribute("r", "78%");
+      gShade.innerHTML = `
+        <stop offset="0%" stop-color="rgba(255,255,255,0.12)" />
+        <stop offset="55%" stop-color="rgba(255,255,255,0)" />
+        <stop offset="92%" stop-color="rgba(0,0,0,0.32)" />
+        <stop offset="100%" stop-color="rgba(0,0,0,0.55)" />
+      `;
+      defs.appendChild(gShade);
+
+      this.clipDisc = document.createElementNS("http://www.w3.org/2000/svg", "clipPath");
+      this.clipDisc.setAttribute("id", "clipDisc");
+      this.clipCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      this.clipDisc.appendChild(this.clipCircle);
+      defs.appendChild(this.clipDisc);
+
+      this.atmosphereCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      this.atmosphereCircle.setAttribute("fill", "url(#gAtm)");
+      this.atmosphereCircle.setAttribute("pointer-events", "none");
+      this.svg.appendChild(this.atmosphereCircle);
+
+      this.oceanCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      this.oceanCircle.setAttribute("fill", this.options.oceanColor);
+      this.svg.appendChild(this.oceanCircle);
+
+      this.oceanGradientCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      this.oceanGradientCircle.setAttribute("fill", "url(#gO)");
+      this.svg.appendChild(this.oceanGradientCircle);
+
+      this.clipGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      this.clipGroup.setAttribute("clip-path", "url(#clipDisc)");
+      this.svg.appendChild(this.clipGroup);
+
+      this.gridPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      this.gridPath.setAttribute("fill", "none");
+      this.gridPath.setAttribute("stroke", "rgba(255, 255, 255, 0.08)");
+      this.gridPath.setAttribute("stroke-width", "0.5");
+      this.gridPath.setAttribute("pointer-events", "none");
+      this.clipGroup.appendChild(this.gridPath);
+
+      this.countriesGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      this.clipGroup.appendChild(this.countriesGroup);
+
+      this.shadeCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      this.shadeCircle.setAttribute("fill", "url(#gShade)");
+      this.shadeCircle.setAttribute("pointer-events", "none");
+      this.svg.appendChild(this.shadeCircle);
+
+      this.edgeCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      this.edgeCircle.setAttribute("fill", "none");
+      this.edgeCircle.setAttribute("stroke", this.options.glowColor);
+      this.edgeCircle.setAttribute("stroke-opacity", "0.2");
+      this.edgeCircle.setAttribute("stroke-width", "1");
+      this.edgeCircle.setAttribute("pointer-events", "none");
+      this.svg.appendChild(this.edgeCircle);
+
+      this.markersGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      this.svg.appendChild(this.markersGroup);
+    }
+
+    resize() {
+      const rect = this.container.getBoundingClientRect();
+      this.width = rect.width || 300;
+      this.height = rect.height || 280;
+      this.cx = this.width / 2;
+      this.cy = this.height / 2;
+      this.R = Math.max(30, Math.min(this.width, this.height) / 2 - 12);
+
+      this.svg.setAttribute("width", this.width);
+      this.svg.setAttribute("height", this.height);
+      this.svg.setAttribute("viewBox", `0 0 ${this.width} ${this.height}`);
+
+      this.atmosphereCircle.setAttribute("cx", this.cx);
+      this.atmosphereCircle.setAttribute("cy", this.cy);
+      this.atmosphereCircle.setAttribute("r", this.R + 40);
+
+      this.oceanCircle.setAttribute("cx", this.cx);
+      this.oceanCircle.setAttribute("cy", this.cy);
+      this.oceanCircle.setAttribute("r", this.R);
+
+      this.oceanGradientCircle.setAttribute("cx", this.cx);
+      this.oceanGradientCircle.setAttribute("cy", this.cy);
+      this.oceanGradientCircle.setAttribute("r", this.R);
+
+      this.clipCircle.setAttribute("cx", this.cx);
+      this.clipCircle.setAttribute("cy", this.cy);
+      this.clipCircle.setAttribute("r", this.R);
+
+      this.shadeCircle.setAttribute("cx", this.cx);
+      this.shadeCircle.setAttribute("cy", this.cy);
+      this.shadeCircle.setAttribute("r", this.R);
+
+      this.edgeCircle.setAttribute("cx", this.cx);
+      this.edgeCircle.setAttribute("cy", this.cy);
+      this.edgeCircle.setAttribute("r", this.R);
+
+      this.gAtm.innerHTML = `
+        <stop offset="0%" stop-color="${this.options.glowColor}" stop-opacity="0" />
+        <stop offset="${(this.R / (this.R + 40) * 100).toFixed(1)}%" stop-color="${this.options.glowColor}" stop-opacity="0" />
+        <stop offset="${((this.R + 4) / (this.R + 40) * 100).toFixed(1)}%" stop-color="${this.options.glowColor}" stop-opacity="${0.22 * this.options.glowIntensity}" />
+        <stop offset="100%" stop-color="${this.options.glowColor}" stop-opacity="0" />
+      `;
+
+      this.gO.innerHTML = `
+        <stop offset="0%" stop-color="#14181a" stop-opacity="0.35" />
+        <stop offset="50%" stop-color="#0c0e10" stop-opacity="0.06" />
+        <stop offset="100%" stop-color="#050608" stop-opacity="0.3" />
+      `;
+      
+      this.render();
+    }
+
+    setupEvents() {
+      this.svg.addEventListener("pointerdown", e => {
+        this.isDragging = true;
+        this.isTransitioning = false;
+        this.dragStart.x = e.clientX;
+        this.dragStart.y = e.clientY;
+        this.dragStartRot.lambda = this.lambda;
+        this.dragStartRot.phi = this.phi;
+        this.svg.style.cursor = "grabbing";
+        try { this.svg.setPointerCapture(e.pointerId); } catch(err) {}
+      });
+
+      this.svg.addEventListener("pointermove", e => {
+        if (!this.isDragging) return;
+        const dx = e.clientX - this.dragStart.x;
+        const dy = e.clientY - this.dragStart.y;
+        
+        const sens = 0.35;
+        this.lambda = this.dragStartRot.lambda - dx * sens;
+        this.phi = Math.max(-85, Math.min(85, this.dragStartRot.phi + dy * sens));
+      });
+
+      const endDrag = e => {
+        if (!this.isDragging) return;
+        this.isDragging = false;
+        this.userInteractedTime = Date.now();
+        this.svg.style.cursor = "grab";
+        try { this.svg.releasePointerCapture(e.pointerId); } catch(err) {}
+      };
+
+      this.svg.addEventListener("pointerup", endDrag);
+      this.svg.addEventListener("pointercancel", endDrag);
+
+      window.addEventListener("resize", () => this.resize());
+    }
+
+    rotateTo(lng, lat) {
+      this.targetLambda = lng;
+      this.targetPhi = lat;
+      this.isTransitioning = true;
+    }
+
+    project(lng, lat, lambda, phi, gamma, R, cx, cy) {
+      const lr = (lng - lambda) * D2R;
+      const la = lat * D2R;
+      const cl = Math.cos(la);
+      const x0 = cl * Math.cos(lr);
+      const y0 = cl * Math.sin(lr);
+      const z0 = Math.sin(la);
+      const cp = Math.cos(phi * D2R);
+      const sp = Math.sin(phi * D2R);
+      const x1 = x0 * cp + z0 * sp;
+      const y1 = y0;
+      const z1 = -x0 * sp + z0 * cp;
+      const cg = Math.cos(gamma * D2R);
+      const sg = Math.sin(gamma * D2R);
+      const rx = x1;
+      const ry = y1 * cg - z1 * sg;
+      const rz = y1 * sg + z1 * cg;
+      return {
+        sx: cx + R * ry,
+        sy: cy - R * rz,
+        rx, ry, rz,
+        v: rx >= 0
+      };
+    }
+
+    limbIntersect(a, b, R, cx, cy) {
+      const dr = a.rx - b.rx;
+      if (Math.abs(dr) < 1e-12) return null;
+      const t = a.rx / dr;
+      if (t < 0 || t > 1) return null;
+      let ry = a.ry + t * (b.ry - a.ry);
+      let rz = a.rz + t * (b.rz - a.rz);
+      const norm = Math.sqrt(ry * ry + rz * rz);
+      if (norm < 1e-9) return null;
+      ry /= norm;
+      rz /= norm;
+      return { sx: cx + R * ry, sy: cy - R * rz, rx: 0, ry, rz, v: true };
+    }
+
+    ringToSegments(ring, lambda, phi, gamma, R, cx, cy) {
+      const n = ring.length;
+      if (n < 3) return [];
+      const proj = new Array(n);
+      let visCount = 0;
+      for (let i = 0; i < n; i++) {
+        const p = ring[i];
+        proj[i] = this.project(p[0], p[1], lambda, phi, gamma, R, cx, cy);
+        if (proj[i].v) visCount++;
+      }
+      if (visCount === 0) return [];
+      if (visCount === n) return [proj.slice()];
+
+      let startIdx = -1;
+      for (let i = 0; i < n; i++) {
+        if (!proj[i].v && proj[(i + 1) % n].v) {
+          startIdx = i;
+          break;
+        }
+      }
+      if (startIdx === -1) return [proj.slice()];
+
+      const segments = [];
+      let cur = [];
+      for (let k = 0; k < n; k++) {
+        const i = (startIdx + k) % n;
+        const j = (startIdx + k + 1) % n;
+        const A = proj[i];
+        const B = proj[j];
+        if (A.v && B.v) {
+          cur.push(B);
+        } else if (A.v && !B.v) {
+          const inter = this.limbIntersect(A, B, this.R, this.cx, this.cy);
+          if (inter) cur.push(inter);
+          if (cur.length >= 2) segments.push(cur);
+          cur = [];
+        } else if (!A.v && B.v) {
+          const inter = this.limbIntersect(A, B, this.R, this.cx, this.cy);
+          if (inter) cur.push(inter);
+          cur.push(B);
+        }
+      }
+      return segments;
+    }
+
+    segmentsToPath(segs) {
+      if (segs.length === 0) return "";
+      let out = "";
+      for (const seg of segs) {
+        for (let i = 0; i < seg.length; i++) {
+          const p = seg[i];
+          out += (i === 0 ? "M" : "L") + p.sx.toFixed(1) + "," + p.sy.toFixed(1);
+        }
+        out += "Z";
+      }
+      return out;
+    }
+
+    buildSphericalPath(type, coords, lambda, phi, gamma, R, cx, cy) {
+      if (!coords) return "";
+      if (type === "Polygon") {
+        let out = "";
+        for (const ring of coords) {
+          out += this.segmentsToPath(this.ringToSegments(ring, lambda, phi, gamma, R, cx, cy));
+        }
+        return out;
+      }
+      if (type === "MultiPolygon") {
+        let out = "";
+        for (const poly of coords) {
+          for (const ring of poly) {
+            out += this.segmentsToPath(this.ringToSegments(ring, lambda, phi, gamma, R, cx, cy));
+          }
+        }
+        return out;
+      }
+      return "";
+    }
+
+    buildGraticule(lambda, phi, gamma, R, cx, cy) {
+      let out = "";
+      for (let lat = -60; lat <= 60; lat += 30) {
+        let started = false;
+        let prev = null;
+        for (let lng = -180; lng <= 180; lng += 4) {
+          const p = this.project(lng, lat, lambda, phi, gamma, R, cx, cy);
+          if (p.v) {
+            if (!started || (prev && !prev.v)) {
+              out += "M" + p.sx.toFixed(1) + "," + p.sy.toFixed(1);
+              started = true;
+            } else {
+              out += "L" + p.sx.toFixed(1) + "," + p.sy.toFixed(1);
+            }
+          }
+          prev = p;
+        }
+      }
+      for (let lng = -180; lng < 180; lng += 30) {
+        let started = false;
+        let prev = null;
+        for (let lat = -80; lat <= 80; lat += 4) {
+          const p = this.project(lng, lat, lambda, phi, gamma, R, cx, cy);
+          if (p.v) {
+            if (!started || (prev && !prev.v)) {
+              out += "M" + p.sx.toFixed(1) + "," + p.sy.toFixed(1);
+              started = true;
+            } else {
+              out += "L" + p.sx.toFixed(1) + "," + p.sy.toFixed(1);
+            }
+          }
+          prev = p;
+        }
+      }
+      return out;
+    }
+
+    decodeTopoJson(topo) {
+      const transform = topo.transform;
+      const scale = transform ? transform.scale : [1, 1];
+      const translate = transform ? transform.translate : [0, 0];
+      
+      const arcs = topo.arcs.map(arc => {
+        let x = 0, y = 0;
+        return arc.map(p => {
+          x += p[0];
+          y += p[1];
+          return [x * scale[0] + translate[0], y * scale[1] + translate[1]];
+        });
+      });
+
+      const resolveRing = ringIndices => {
+        const ring = [];
+        for (const idx of ringIndices) {
+          const a = idx >= 0 ? arcs[idx] : arcs[~idx].slice().reverse();
+          for (let j = ring.length > 0 ? 1 : 0; j < a.length; j++) {
+            ring.push(a[j]);
+          }
+        }
+        return ring;
+      };
+
+      const geometries = topo.objects.countries.geometries;
+      return geometries.map(g => {
+        let coords = null;
+        if (g.type === "Polygon") {
+          coords = g.arcs.map(r => resolveRing(r));
+        } else if (g.type === "MultiPolygon") {
+          coords = g.arcs.map(poly => poly.map(r => resolveRing(r)));
+        }
+        return {
+          id: String(g.id ?? ""),
+          type: g.type,
+          coords: coords
+        };
+      });
+    }
+
+    renderMarkers() {
+      this.markersGroup.innerHTML = "";
+      this.options.markers.forEach((m, idx) => {
+        const p = this.project(m.lng, m.lat, this.lambda, this.phi, this.gamma, this.R, this.cx, this.cy);
+        if (p.v) {
+          const fade = Math.max(0, Math.min(1, p.rx * 4));
+          
+          const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+          g.setAttribute("transform", `translate(${p.sx.toFixed(1)}, ${p.sy.toFixed(1)})`);
+          g.setAttribute("style", `opacity: ${fade}; cursor: pointer;`);
+          
+          const pulse = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          pulse.setAttribute("class", "mm-pulse");
+          pulse.setAttribute("r", "7");
+          pulse.setAttribute("fill", this.options.glowColor);
+          pulse.setAttribute("fill-opacity", "0.55");
+          g.appendChild(pulse);
+
+          const outer = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          outer.setAttribute("r", "10");
+          outer.setAttribute("fill", this.options.glowColor);
+          outer.setAttribute("fill-opacity", "0.14");
+          g.appendChild(outer);
+
+          const core = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          core.setAttribute("r", "4.2");
+          core.setAttribute("fill", this.options.glowColor);
+          g.appendChild(core);
+
+          const spec = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          spec.setAttribute("cx", "-1.2");
+          spec.setAttribute("cy", "-1.2");
+          spec.setAttribute("r", "1.2");
+          spec.setAttribute("fill", "rgba(255, 255, 255, 0.7)");
+          g.appendChild(spec);
+
+          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          text.setAttribute("x", "11");
+          text.setAttribute("y", "3.5");
+          text.setAttribute("fill", "#e7ece9");
+          text.setAttribute("font-size", "9.5");
+          text.setAttribute("font-weight", "600");
+          text.setAttribute("letter-spacing", "0.04em");
+          text.setAttribute("stroke", this.options.oceanColor);
+          text.setAttribute("stroke-width", "3");
+          text.setAttribute("paint-order", "stroke");
+          text.setAttribute("style", "pointer-events:none; user-select:none; font-family: Outfit, sans-serif;");
+          text.textContent = m.label;
+          g.appendChild(text);
+
+          this.markersGroup.appendChild(g);
+        }
+      });
+    }
+
+    render() {
+      if (!this.features.length) return;
+      
+      if (this.countriesGroup.childElementCount === 0) {
+        this.countryPaths = new Map();
+        this.features.forEach(c => {
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute("class", "mm-c");
+          path.setAttribute("fill", this.options.landFill);
+          path.setAttribute("stroke", this.options.landStroke);
+          path.setAttribute("stroke-width", this.options.strokeWidth);
+          path.setAttribute("vector-effect", "non-scaling-stroke");
+          this.countriesGroup.appendChild(path);
+          this.countryPaths.set(c.id, path);
+        });
+      }
+
+      this.features.forEach(c => {
+        const d = this.buildSphericalPath(c.type, c.coords, this.lambda, this.phi, this.gamma, this.R, this.cx, this.cy);
+        const path = this.countryPaths.get(c.id);
+        if (path) path.setAttribute("d", d);
+      });
+
+      this.gridPath.setAttribute("d", this.buildGraticule(this.lambda, this.phi, this.gamma, this.R, this.cx, this.cy));
+      this.renderMarkers();
+    }
+
+    animate() {
+      let lastTime = performance.now();
+      
+      const step = now => {
+        const dt = Math.min(0.05, (now - lastTime) / 1000);
+        lastTime = now;
+
+        if (this.isTransitioning) {
+          const dx = this.targetLambda - this.lambda;
+          const dy = this.targetPhi - this.phi;
+
+          let ndx = ((dx + 180) % 360 + 360) % 360 - 180;
+
+          this.lambda += ndx * 0.08;
+          this.phi += dy * 0.08;
+
+          if (Math.abs(ndx) < 0.1 && Math.abs(dy) < 0.1) {
+            this.lambda = this.targetLambda;
+            this.phi = this.targetPhi;
+            this.isTransitioning = false;
+            this.userInteractedTime = Date.now();
+          }
+          this.render();
+        } else if (this.options.autoRotate && !this.isDragging) {
+          const sinceUser = Date.now() - this.userInteractedTime;
+          if (sinceUser > 1500) {
+            this.lambda += this.options.autoRotateSpeed * dt;
+            this.render();
+          }
+        }
+        
+        requestAnimationFrame(step);
+      };
+      
+      requestAnimationFrame(step);
+    }
+  }
+
+  // Initialize Globe
+  const globe = new TacticalGlobe("globe-container");
+  
+  // Set up timezone pills click handlers
+  const pills = document.querySelectorAll(".tz-pill");
+  const activeCountryText = document.getElementById("active-country");
+  
+  pills.forEach(pill => {
+    pill.addEventListener("click", () => {
+      pills.forEach(p => p.classList.remove("is-active"));
+      pill.classList.add("is-active");
+      
+      const lat = parseFloat(pill.getAttribute("data-lat"));
+      const lng = parseFloat(pill.getAttribute("data-lng"));
+      const label = pill.getAttribute("data-label");
+      
+      // Rotate globe to focus on clicked location
+      if (globe) {
+        globe.rotateTo(lng, lat);
+      }
+      
+      // Update active country label
+      if (activeCountryText) {
+        activeCountryText.textContent = label;
+      }
+    });
+  });
+
+  // Timezone live clocks
+  function updateTimezoneClocks() {
+    pills.forEach(pill => {
+      const tz = pill.getAttribute("data-tz");
+      let tzId = "Asia/Kolkata";
+      if (tz === "UK") tzId = "Europe/London";
+      if (tz === "USA") tzId = "America/New_York";
+      
+      try {
+        const timeStr = new Intl.DateTimeFormat("en-US", {
+          timeZone: tzId,
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true
+        }).format(new Date());
+        
+        const timeSpan = pill.querySelector(".tz-time");
+        if (timeSpan) {
+          timeSpan.textContent = timeStr;
+        }
+      } catch (err) {
+        console.error("Failed to format timezone clock:", err);
+      }
+    });
+  }
+  
+  updateTimezoneClocks();
+  setInterval(updateTimezoneClocks, 20000); // update every 20 seconds
 
 });
