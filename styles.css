@@ -947,21 +947,21 @@ button {
 
 .skill-flower {
   position: relative;
-  width: min(350px, 72vw);
+  width: min(390px, 82vw);
   margin: 0 auto 16px;
 }
 
 .skill-flower::before {
   position: absolute;
-  right: 8%;
-  bottom: -6px;
-  left: 8%;
-  height: 32px;
+  right: 6%;
+  bottom: -8px;
+  left: 6%;
+  height: 36px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--accent-color) 45%, transparent);
-  box-shadow: 0 0 54px 18px color-mix(in srgb, var(--accent-color) 40%, transparent), 0 20px 42px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 0 60px 24px color-mix(in srgb, var(--accent-color) 42%, transparent), 0 24px 48px rgba(0, 0, 0, 0.95);
   content: "";
-  filter: blur(14px);
+  filter: blur(16px);
   z-index: 0;
 }
 
@@ -970,8 +970,8 @@ button {
   bottom: -1px;
   left: -1px;
   right: -1px;
-  height: 50%;
-  background: linear-gradient(to bottom, transparent, var(--bg) 85%, var(--bg));
+  height: 55%;
+  background: linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--bg) 35%, transparent) 30%, color-mix(in srgb, var(--bg) 85%, transparent) 75%, var(--bg) 100%);
   z-index: 2;
   content: "";
   pointer-events: none;
