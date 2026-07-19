@@ -678,7 +678,7 @@ button {
 }
 
 .intro-kicker {
-  color: var(--muted);
+  color: var(--ink);
   font-size: 0.76rem;
   font-weight: 600;
   letter-spacing: 0.28em;
@@ -688,7 +688,7 @@ button {
 }
 
 .intro-title {
-  color: var(--ink);
+  color: var(--accent-color);
   font-family: "Cormorant Garamond", Georgia, serif;
   font-size: clamp(2.1rem, 4.4vw, 3.4rem);
   font-style: italic;
